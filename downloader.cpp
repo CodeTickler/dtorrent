@@ -106,7 +106,7 @@ void Downloader()
     WORLD.UnLate();
     nfds = select(maxfd + 1,&rfd,&wfd,(fd_set*) 0,&timeout);
     if( nfds < 0 ){
-      CONSOLE.Warning(1, "warn, error from select:  %s", strerror(errno));
+      CONSOLE.Debug("Error from select:  %s", strerror(errno));
       FD_ZERO(&rfdnext); FD_ZERO(&wfdnext);
       nfds = 0;
     }
