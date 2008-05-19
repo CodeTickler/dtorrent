@@ -626,10 +626,8 @@ int btFiles::CreateFiles()
     
     if(stat(fn, &sb) < 0){
       if(ENOENT == errno){
-        if( arg_allocate ){
-          CONSOLE.Interact_n("");
-          CONSOLE.Interact_n("Creating %s", fn);
-        }
+        CONSOLE.Interact_n("");
+        CONSOLE.Interact_n("Creating file \"%s\"", fn);
         if( !_btf_creat_by_path(fn,pbt->bf_length)){
           CONSOLE.Warning(1, "error, create file \"%s\" failed:  %s", fn,
             strerror(errno));
