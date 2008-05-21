@@ -425,7 +425,8 @@ int btContent::InitialFromMI(const char *metainfo_fname,const char *saveas)
     }
     if( r ){
       if( CheckExist() < 0 ) ERR_RETURN();
-      m_btfiles.PrintOut(); // show file completion
+      if( !pBF->IsEmpty() )
+        m_btfiles.PrintOut(); // show file completion
     }
     CONSOLE.Print("Already/Total: %d/%d (%d%%)", (int)(pBF->Count()),
       (int)m_npieces, (int)(100 * pBF->Count() / m_npieces));
@@ -1121,7 +1122,8 @@ int btContent::CheckNextPiece()
 
   if( m_check_piece >= m_npieces ){
     CONSOLE.Print("Checking completed.");
-    m_btfiles.PrintOut();  // show file completion
+    if( !pBF->IsEmpty() )
+      m_btfiles.PrintOut();  // show file completion
     if( pBF->IsFull() ){
       WORLD.CloseAllConnectionToSeed();
     }
