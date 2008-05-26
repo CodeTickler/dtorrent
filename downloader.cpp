@@ -36,8 +36,8 @@ void Downloader()
 
   FD_ZERO(&rfdnext); FD_ZERO(&wfdnext);
 
-  time(&now);
   do{
+    time(&now);
     if( !stopped ){
       if( !Tracker.IsQuitting() && BTCONTENT.SeedTimeout() )
         Tracker.SetStoped();
@@ -69,6 +69,7 @@ void Downloader()
             maxsleep = 2;
           }else maxsleep = 0;
           f_idleused = 1;
+          time(&now);
         }
         r = Tracker.IntervalCheck(&rfd, &wfd);
         if( r > maxfd ) maxfd = r;
@@ -86,9 +87,13 @@ void Downloader()
     r = WORLD.IntervalCheck(&rfd, &wfd);
     if( r > maxfd ) maxfd = r;
 
-    while( !f_poll && BTCONTENT.NeedFlush() && WORLD.IsIdle() ){
-      BTCONTENT.FlushQueue();
-      maxsleep = 0;
+    if( !f_poll ){
+      time(&now);
+      while( BTCONTENT.NeedFlush() && WORLD.IsIdle() ){
+        BTCONTENT.FlushQueue();
+        maxsleep = 0;
+        time(&now);
+      }
     }
 
     rfdnext = rfd;
