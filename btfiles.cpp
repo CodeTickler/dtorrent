@@ -263,6 +263,7 @@ int btFiles::_btf_ftruncate(int fd,int64_t length)
       if( (r = write(fd, c, wlen)) < 0 ) return r;
       len += wlen;
     }
+    delete []c;
     return r;
   }
 #ifdef WINDOWS
