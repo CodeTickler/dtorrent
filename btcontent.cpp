@@ -779,9 +779,9 @@ void btContent::FlushPiece(size_t idx)
   p = m_cache[idx];
 
   for( ; p; p = p->bc_next ){
-    // Update the age--flushing the entry or its piece.  Usually this means
-    // we've just completed the piece and made it available.
-    if( m_cache_newest != p ){
+    // Update the age if piece is complete, as this should mean we've just
+    // completed the piece and made it available.
+    if( pBF->IsSet(idx) && m_cache_newest != p ){
       if( m_cache_oldest == p ) m_cache_oldest = p->age_next;
       else p->age_prev->age_next = p->age_next;
       p->age_next->age_prev = p->age_prev;
