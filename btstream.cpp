@@ -164,9 +164,10 @@ ssize_t btStream::PickMessage()
   return in_buffer.PickUp( get_nl(in_buffer.BasePointer()) + H_LEN );
 }
 
+// Used only for sending peer handshake
 ssize_t btStream::Send_Buffer(char *buf, size_t len)
 {
-  return out_buffer.Put(sock,buf,len);
+  return out_buffer.PutFlush(sock,buf,len);
 }
 
 // Does not distinguish between keepalive, choke (msg 0), and no message.
