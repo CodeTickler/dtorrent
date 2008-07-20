@@ -612,8 +612,9 @@ size_t PeerList::What_Can_Duplicate(BitField &bf, const btPeer *proposer,
   }
   if( mark < slots && data[mark].count == 1 ) m_dup_req_pieces++;
   CONSOLE.Debug("%d dup req pieces", (int)m_dup_req_pieces);
+  piece = (mark < slots) ? data[mark].idx : BTCONTENT.GetNPieces();
   delete []data;
-  return (mark < slots) ? data[mark].idx : BTCONTENT.GetNPieces();
+  return piece;
 }
 
 void PeerList::FindValuedPieces(BitField &bf, const btPeer *proposer,
