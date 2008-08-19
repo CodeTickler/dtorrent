@@ -167,7 +167,7 @@ int Ctcs::SendMessage(const char *message)
 
   if( m_status == T_READY ){
     len = strlen(message);
-    strncpy(buf, message, len);
+    strncpy(buf, message, CTCS_BUFSIZE);
     if( len+1 < CTCS_BUFSIZE ){
       buf[len] = '\n';
       buf[len+1] = '\0';
