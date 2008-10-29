@@ -113,6 +113,7 @@ class Console
   Console();
   ~Console();
 
+  void Init();
   int IntervalCheck(fd_set *rfdp, fd_set *wfdp);
   void User(fd_set *rfdp, fd_set *wfdp, int *nready,
     fd_set *rfdnextp, fd_set *wfdnextp);

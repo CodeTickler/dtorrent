@@ -322,7 +322,17 @@ Console::Console()
   }
 
   m_status_len = 80;
+}
 
+
+Console::~Console()
+{
+  if( this == &CONSOLE ) g_console_ready = 0;
+}
+
+
+void Console::Init()
+{
   m_stdout.Associate(stdout, "stdout", 1);
   m_stderr.Associate(stderr, "stderr", 1);
   m_stdin.Associate(stdin, "stdin", 0);
@@ -339,12 +349,6 @@ Console::Console()
   m_conmode = K_CHARS;
 
   if( this == &CONSOLE ) g_console_ready = 1;
-}
-
-
-Console::~Console()
-{
-  if( this == &CONSOLE ) g_console_ready = 0;
 }
 
 

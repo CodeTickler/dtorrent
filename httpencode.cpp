@@ -77,7 +77,7 @@ int Http_url_analyse(const char *url,char *host,int *port,char *path)
 size_t Http_split(char *b,size_t n,char **pd,size_t *dlen)
 {
   char *p;
-  size_t addtion, hlen;
+  size_t addtion = 0, hlen;
 
   hlen = 0;
 

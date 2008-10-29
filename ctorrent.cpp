@@ -64,6 +64,7 @@ int main(int argc, char **argv)
   char *s;
 
   Random_init();
+  CONSOLE.Init();
   arg_user_agent = new char[MAX_PF_LEN+1];
   strcpy(arg_user_agent,PEER_PFX);
 
