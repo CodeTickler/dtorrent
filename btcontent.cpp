@@ -1116,6 +1116,7 @@ int btContent::CheckNextPiece()
       m_left_bytes -= GetPieceLength(idx);
       pBF->Set(idx);
       WORLD.Tell_World_I_Have(idx);
+      CheckFilter();
     }else{
       if(arg_verbose) CONSOLE.Debug("Check: %u failed", idx);
       f_checkint = 1;
