@@ -1205,7 +1205,7 @@ void Console::Debug(const char *message, ...)
       m_streams[O_INPUT]->IsSuspended() ||
       (!m_streams[O_DEBUG]->SameDev(m_streams[O_INTERACT]) &&
        !m_streams[O_DEBUG]->SameDev(m_streams[O_INPUT])) ){
-    size_t need = strlen(message)+1 + 10*sizeof(unsigned long)/4;
+    size_t need = strlen(message) + 2 + 10*sizeof(unsigned long)/4;
     if( need > sizeof(buffer) && (format = new char[need]) ) buflen = need;
     else{ format = buffer; buflen = sizeof(buffer); }
 
@@ -1243,7 +1243,7 @@ void Console::Debug_n(const char *message, ...)
     if( f_new_line && message && *message ){
       char *format = (char *)0;
       size_t buflen;
-      size_t need = strlen(message)+1 + 10*sizeof(unsigned long)/4;
+      size_t need = strlen(message) + 2 + 10*sizeof(unsigned long)/4;
       if( need > sizeof(buffer) && (format = new char[need]) ) buflen = need;
       else{ format = buffer; buflen = sizeof(buffer); }
 
