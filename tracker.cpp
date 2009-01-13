@@ -69,6 +69,7 @@ void btTracker::Reset(time_t new_interval)
 
   if( m_f_stoped ){
     m_status = T_FINISHED;
+    m_f_started = 0;
     if( m_f_restart ) Restart();
   }
   else m_status = T_FREE;
@@ -447,16 +448,28 @@ int btTracker::Connect()
     }
   }
 
-  if(setfd_nonblock(m_sock) < 0){ CLOSE_SOCKET(m_sock); return -1; }
+  if(setfd_nonblock(m_sock) < 0){
+    CLOSE_SOCKET(m_sock);
+    m_sock = INVALID_SOCKET;
+    return -1;
+  }
 
   r = connect_nonb(m_sock,(struct sockaddr*)&m_sin);
 
-  if( r == -1 ){ CLOSE_SOCKET(m_sock); return -1; }
+  if( r == -1 ){
+    CLOSE_SOCKET(m_sock);
+    m_sock = INVALID_SOCKET;
+    return -1;
+  }
   else if( r == -2 ) m_status = T_CONNECTING;
   else{
     if(arg_verbose) CONSOLE.Debug("Connected to tracker");
     if( 0 == SendRequest() ) m_status = T_READY;
-    else{ CLOSE_SOCKET(m_sock); return -1; }
+    else{
+      CLOSE_SOCKET(m_sock);
+      m_sock = INVALID_SOCKET;
+      return -1;
+    }
   }
   return 0;
 }

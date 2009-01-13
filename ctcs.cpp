@@ -744,11 +744,19 @@ int Ctcs::Connect()
   m_sock = socket(AF_INET,SOCK_STREAM,0);
   if( INVALID_SOCKET == m_sock ) return -1;
 
-  if( setfd_nonblock(m_sock) < 0 ){ CLOSE_SOCKET(m_sock); return -1; }
+  if( setfd_nonblock(m_sock) < 0 ){
+    CLOSE_SOCKET(m_sock);
+    m_sock = INVALID_SOCKET;
+    return -1;
+  }
 
   r = connect_nonb(m_sock,(struct sockaddr*)&m_sin);
 
-  if( r == -1 ){ CLOSE_SOCKET(m_sock); return -1; }
+  if( r == -1 ){
+    CLOSE_SOCKET(m_sock);
+    m_sock = INVALID_SOCKET;
+    return -1;
+  }
   else if( r == -2 ) m_status = T_CONNECTING;
   else{
     m_status = T_READY;
