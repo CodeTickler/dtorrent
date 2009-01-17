@@ -39,7 +39,7 @@ btTracker::btTracker()
   m_interval = 15;
   m_peers_count = m_seeds_count = 0;
 
-  m_connect_refuse_click = 0;
+  m_ok_click = m_connect_refuse_click = 0;
   m_last_timestamp = (time_t) 0;
   m_prevpeers = 0;
 
