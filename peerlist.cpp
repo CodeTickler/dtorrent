@@ -1021,7 +1021,7 @@ void PeerList::AnyPeerReady(fd_set *rfdp, fd_set *wfdp, int *nready,
   SOCKET sk;
   int need_check_send = 0;
 
-  if( FD_ISSET(m_listen_sock, rfdp) ){
+  if( m_listen_sock != INVALID_SOCKET && FD_ISSET(m_listen_sock, rfdp) ){
     (*nready)--;
     if( !Self.OntimeDL() && !Self.OntimeUL() ){
       FD_CLR(m_listen_sock,rfdnextp);
