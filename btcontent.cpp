@@ -872,6 +872,12 @@ void btContent::FlushQueue()
       (int)(m_cache_oldest->bc_len));
     FlushEntry(m_cache_oldest);
   }
+
+  if( !m_flushq && Seeding() ){
+    CONSOLE.Print("Finished flushing data.");
+    CacheEval();
+    if( m_cache_size < m_cache_used ) CacheClean(0);
+  }
 }
 
 /* Prepare for prefetching a whole piece.
