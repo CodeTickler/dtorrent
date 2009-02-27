@@ -306,7 +306,7 @@ int btPeer::RequestPiece()
       // OK to duplicate a request, but not to very slow/high latency peers.
 //    idx = tmpBitfield.Random();
       idx = 0;  // flag for Who_Can_Duplicate()
-      BitField tmpBitfield3 = tmpBitfield2;
+      BitField tmpBitfield3 = tmpBitfield;
       idx = WORLD.What_Can_Duplicate(tmpBitfield3, this, idx);
       if( idx < BTCONTENT.GetNPieces() ){
         if(arg_verbose) CONSOLE.Debug("Want to dup #%d to %p",
