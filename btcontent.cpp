@@ -357,7 +357,11 @@ int btContent::InitialFromMI(const char *metainfo_fname,const char *saveas)
 
   cfg_req_queue_length = (m_piece_length / cfg_req_slice_size) * 2 - 1;
 
-  if( m_btfiles.BuildFromMI(b, flen, saveas) < 0 ) ERR_RETURN();
+  if( m_btfiles.BuildFromMI(b, flen, saveas, arg_flg_exam_only) < 0 ){
+    if( EINVAL == errno )
+      CONSOLE.Warning(1, "Torrent metainfo file data is invalid or unusable.");
+    ERR_RETURN();
+  }
 
   delete []b;
   b = (char *)0;
