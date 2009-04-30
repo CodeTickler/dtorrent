@@ -274,7 +274,8 @@ int btTracker::CheckReponse()
           redirect) < 0 )
         return -1;
 
-      if( Http_url_analyse(redirect,m_host,&m_port,m_path) < 0 ){
+      if( Http_url_analyse(redirect, m_host, &m_port, m_path, sizeof(m_path)) <
+            0 ){
         CONSOLE.Warning(1,
           "warn, tracker redirected to an invalid url %s", redirect);
         return -1;
@@ -319,7 +320,8 @@ int btTracker::CheckReponse()
 
 int btTracker::Initial()
 {
-  if(Http_url_analyse(BTCONTENT.GetAnnounce(),m_host,&m_port,m_path) < 0){
+  if( Http_url_analyse(BTCONTENT.GetAnnounce(), m_host, &m_port, m_path,
+        sizeof(m_path)) < 0 ){
     CONSOLE.Warning(1, "error, invalid tracker url format!");
     return -1;
   }

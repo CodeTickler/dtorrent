@@ -40,11 +40,14 @@ char* Http_url_encode(char *s,const char *b,size_t n)
   return s;
 }
 
-int Http_url_analyse(const char *url,char *host,int *port,char *path)
+int Http_url_analyse(const char *url, char *host, int *port, char *path,
+  size_t maxlen)
 {
   const char *p;
   int r;
+  size_t i;
   *port = 80;	/* default port 80 */
+
   p = strstr(url,"://");
   if( !p ) 
     p = url;
@@ -68,8 +71,9 @@ int Http_url_analyse(const char *url,char *host,int *port,char *path)
   }
 
   /* path */
-  if( *p != '/' ) return -1;
-  for( ; *p; p++,path++) *path = *p;
+  if( *p != '\0' && *p != '/' && *p != '?' ) return -1;
+  for( i=0; *p && r < maxlen; p++,path++,i++) *path = *p;
+  if( i >= maxlen ) return -1;
   *path = '\0';
   return 0;
 }
