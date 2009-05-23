@@ -194,6 +194,7 @@ int btPeer::RequestPiece()
   size_t idx;
   BitField tmpBitfield, *pfilter;
   int endgame = 0;
+  bool exclude_last = false;
 
   size_t qsize = request_q.Qsize();
   size_t psize = BTCONTENT.GetPieceLength() / cfg_req_slice_size;
@@ -206,9 +207,12 @@ int btPeer::RequestPiece()
   }
 
   tmpBitfield = bitfield;
+  tmpBitfield.Except(*BTCONTENT.pBF);
   tmpBitfield.Except(*BTCONTENT.pBMasterFilter);
-  if( m_last_req_piece < BTCONTENT.GetNPieces() && tmpBitfield.Count() > 1 )
+  if( m_last_req_piece < BTCONTENT.GetNPieces() && tmpBitfield.Count() > 1 ){
+    exclude_last = true;
     tmpBitfield.UnSet(m_last_req_piece);
+  }
   if( (idx = PENDINGQUEUE.ReAssign(&request_q, tmpBitfield)) <
       BTCONTENT.GetNPieces() ){
     if(arg_verbose)
@@ -239,15 +243,15 @@ int btPeer::RequestPiece()
     pfilter = BTCONTENT.GetFilter();
     do{
       tmpBitfield = bitfield;
+      tmpBitfield.Except(*BTCONTENT.pBF);
       if( pfilter ){
         tmpBitfield.Except(*pfilter);
         pfilter = BTCONTENT.GetNextFilter(pfilter);
       }
+      if( exclude_last ) tmpBitfield.UnSet(m_last_req_piece);
     }while( pfilter && tmpBitfield.IsEmpty() );
     if( m_latency < 60 ){
       // Don't dup to very slow/high latency peers.
-      if( m_last_req_piece < BTCONTENT.GetNPieces() && tmpBitfield.Count() > 1 )
-        tmpBitfield.UnSet(m_last_req_piece);
       idx = WORLD.What_Can_Duplicate(tmpBitfield, this, BTCONTENT.GetNPieces());
       if( idx < BTCONTENT.GetNPieces() ){
         if(arg_verbose) CONSOLE.Debug("Want to dup #%d to %p", (int)idx, this);
@@ -273,12 +277,11 @@ int btPeer::RequestPiece()
       tmpBitfield.Except(*pfilter);
       pfilter = BTCONTENT.GetNextFilter(pfilter);
     }
+    if( exclude_last ) tmpBitfield.UnSet(m_last_req_piece);
     // Don't go after pieces we might already have (but don't know yet)
     tmpBitfield.And(*BTCONTENT.pBChecked);
     // tmpBitfield tells what we need from this peer...
   }while( pfilter && tmpBitfield.IsEmpty() );
-  if( m_last_req_piece < BTCONTENT.GetNPieces() && tmpBitfield.Count() > 1 )
-    tmpBitfield.UnSet(m_last_req_piece);
 
   if( tmpBitfield.IsEmpty() ){
     // We don't need to request anything from the peer.
@@ -292,6 +295,7 @@ int btPeer::RequestPiece()
     }else{
       if(arg_verbose) CONSOLE.Debug("%p standby", this);
       m_standby = 1;  // nothing to do at the moment
+      m_last_req_piece = BTCONTENT.GetNPieces();
       return 0;
     }
   }
@@ -338,6 +342,7 @@ int btPeer::RequestPiece()
     }else if( BTCONTENT.CheckedPieces() >= BTCONTENT.GetNPieces() ){
       if(arg_verbose) CONSOLE.Debug("%p standby", this);
       m_standby = 1;  // nothing to do at the moment
+      m_last_req_piece = BTCONTENT.GetNPieces();
     }
   }else{
     // Request something that we haven't requested yet (most common case).
@@ -392,6 +397,9 @@ int btPeer::MsgDeliver()
       if(arg_verbose) CONSOLE.Debug("%p unchoked me", this);
       if( m_lastmsg == M_CHOKE && m_last_timestamp <= m_choketime+1 ){
         if( PeerError(2, "Choke oscillation") < 0 ) return -1;
+      }else{
+        // OK to resume previous piece
+        m_last_req_piece = BTCONTENT.GetNPieces();
       }
       m_choketime = m_last_timestamp;
       m_state.remote_choked = 0;
