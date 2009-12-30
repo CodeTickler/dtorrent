@@ -298,8 +298,11 @@ int btTracker::CheckReponse()
       CONSOLE.Warning(2,
         "IF YOU CONTINUE TO GET THIS MESSAGE AND DOWNLOAD DOES NOT BEGIN, PLEASE STOP CTORRENT!");
       if( pdata && dlen ){  // write(STDERR_FILENO, pdata, dlen);
+        char data[dlen + 1];
+        memcpy(data, pdata, dlen);
+        data[dlen] = '\0';
         CONSOLE.Warning(0, "Tracker reponse data DUMP:");
-        CONSOLE.Warning(0, "%s", pdata);
+        CONSOLE.Warning(0, "%s", data);
         CONSOLE.Warning(0, "== DUMP OVER==");
       }
       return -1;
