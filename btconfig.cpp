@@ -18,7 +18,7 @@ char *cfg_public_ip = (char *) 0;
 int cfg_max_bandwidth_down = 0;
 int cfg_max_bandwidth_up = 0;
 
-time_t cfg_seed_hours = 72;
+time_t cfg_seed_seconds = 72*3600;
 double cfg_seed_ratio = 0;
 
 // arguments global value

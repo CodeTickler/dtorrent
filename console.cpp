@@ -554,8 +554,8 @@ void Console::User(fd_set *rfdp, fd_set *wfdp, int *nready,
                 (int)(cfg_max_bandwidth_up * (inc/100.0)) );
           if( cfg_max_bandwidth_up < 0 ) cfg_max_bandwidth_up = 0;
           break;
-        case 'e': cfg_seed_hours += inc;
-          if( cfg_seed_hours < 0 ) cfg_seed_hours = 0;
+        case 'e': cfg_seed_seconds += inc;
+          if( cfg_seed_seconds < 0 ) cfg_seed_seconds = 0;
           break;
         case 'E': cfg_seed_ratio += inc / 10.0;
           if( cfg_seed_ratio < 0 ) cfg_seed_ratio = 0;
@@ -599,9 +599,9 @@ void Console::User(fd_set *rfdp, fd_set *wfdp, int *nready,
         break;
       case 'u': InteractU("UL Limit: %d B/s ", (int)cfg_max_bandwidth_up);
         break;
-      case 'e': InteractU("Seed time: %.1f hours ", BTCONTENT.GetSeedTime() ?
-          (cfg_seed_hours - (now - BTCONTENT.GetSeedTime())/(double)3600) :
-          (double)cfg_seed_hours);
+      case 'e': InteractU("Seed time: %d seconds ", BTCONTENT.GetSeedTime() ?
+          (cfg_seed_seconds - (now - BTCONTENT.GetSeedTime())) :
+          cfg_seed_seconds);
         break;
       case 'E': InteractU("Seed ratio: %.2f ", (double)cfg_seed_ratio);
         break;
@@ -718,10 +718,10 @@ int Console::OperatorMenu(const char *param)
       Interact("Listening on: %s", WORLD.GetListen());
       Interact("Announce URL: %s", BTCONTENT.GetAnnounce());
       Interact("");
-      Interact("Ratio: %.2f   Seed time: %luh   Seed ratio: %.2f",
+      Interact("Ratio: %.2f   Seed time: %lus   Seed ratio: %.2f",
         (double)(Self.TotalUL()) / ( Self.TotalDL() ? Self.TotalDL() :
                                      BTCONTENT.GetTotalFilesLength() ),
-        (unsigned long)cfg_seed_hours, cfg_seed_ratio);
+        (unsigned long)cfg_seed_seconds, cfg_seed_ratio);
       Interact("Cache in use: %dKB  Wants: %dKB  Max: %dMB",
         (int)(BTCONTENT.CacheUsed()/1024), (int)(BTCONTENT.CacheSize()/1024),
         (int)cfg_cache_size);
@@ -1027,8 +1027,8 @@ void Console::StatusLine1(char buffer[], size_t length)
       else remain = 99999;
     }
   }else{  //seeding
-    if( cfg_seed_hours )
-      remain = cfg_seed_hours * 60 - (now - BTCONTENT.GetSeedTime()) / 60;
+    if( cfg_seed_seconds )
+      remain = (cfg_seed_seconds - (now - BTCONTENT.GetSeedTime())) / 60;
     else if( rate = Self.RateUL() ){
       // don't overflow remain
       if( cfg_seed_ratio *

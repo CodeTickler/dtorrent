@@ -60,9 +60,9 @@
   Downloading Options
 
 
--e int      Exit while seed <int> hours later (default 72 hours)
+-e int      Exit while seed <int> seconds later (default 72 hours)
 
-          Indicate how long (in hours) you want to "seed" (continue
+          Indicate how long (in seconds) you want to "seed" (continue
           uploading) after download has completed. It is considered
           polite and fair (and required by some tracker sites) to seed
           for some time after downloading.

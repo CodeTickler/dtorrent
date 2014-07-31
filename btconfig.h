@@ -28,7 +28,7 @@ extern int cfg_max_listen_port;
 extern int cfg_min_listen_port;
 extern char *cfg_public_ip;
 
-extern time_t cfg_seed_hours;
+extern time_t cfg_seed_seconds;
 extern double cfg_seed_ratio;
 
 extern int cfg_max_bandwidth_down;
