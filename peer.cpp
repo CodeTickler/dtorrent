@@ -252,7 +252,7 @@ int btPeer::RequestPiece()
       if( idx < BTCONTENT.GetNPieces() ){
         if(arg_verbose) CONSOLE.Debug("Want to dup #%d to %p", (int)idx, this);
         btPeer *peer = WORLD.WhoHas(idx);
-        if(peer){
+        if(peer && peer != this){
           if(arg_verbose) CONSOLE.Debug("Duping #%d from %p to %p",
             (int)idx, peer, this);
           if( request_q.CopyShuffle(&peer->request_q, idx) < 0 ) return -1;
@@ -312,7 +312,7 @@ int btPeer::RequestPiece()
         if(arg_verbose) CONSOLE.Debug("Want to dup #%d to %p",
           (int)idx, this);
         btPeer *peer = WORLD.WhoHas(idx);
-        if(peer){  // failsafe
+        if(peer && peer != this){  // failsafe
           if(arg_verbose) CONSOLE.Debug("Duping #%d from %p to %p",
             (int)idx, peer, this);
           if( request_q.CopyShuffle(&peer->request_q, idx) < 0 ) return -1;
@@ -323,7 +323,8 @@ int btPeer::RequestPiece()
       }
     }
     btPeer *peer;
-    if( request_q.IsEmpty() && (peer = WORLD.Who_Can_Abandon(this)) ){
+    if( request_q.IsEmpty() && (peer = WORLD.Who_Can_Abandon(this)) &&
+        (peer != this) ){
       // Cancel a request to the slowest peer & request it from this one.
       idx = peer->FindLastCommonRequest(bitfield);
       if(arg_verbose) CONSOLE.Debug("Reassigning #%d from %p to %p",
