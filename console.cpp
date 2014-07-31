@@ -309,7 +309,7 @@ Console::Console()
   m_live_idx = 0;
   m_oldfd = -1;
 
-  m_status_format = 0;
+  m_status_format = 1;
   int i = 0;
   m_statusline[i++] = &Console::StatusLine0;
   m_statusline[i++] = &Console::StatusLine1;
