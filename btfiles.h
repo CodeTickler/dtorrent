@@ -61,7 +61,7 @@ class btFiles
   
   int BuildFromFS(const char *pathname);
   int BuildFromMI(const char *metabuf, const size_t metabuf_len,
-                  const char *saveas);
+                  const char *saveas, bool exam_only);
 
   char *GetDataName() const;
   uint64_t GetTotalLength() const { return m_total_files_length; }

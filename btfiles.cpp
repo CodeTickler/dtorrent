@@ -353,6 +353,7 @@ int btFiles::_btf_recurses_directory(const char *cur_path, BTFILE* *plastnode)
     }else{
       CONSOLE.Warning(1, "error, \"%s\" is not a directory or regular file.",
         fn);
+      errno = EINVAL;
       closedir(dp);
       return -1;
     }
@@ -444,12 +445,13 @@ int btFiles::BuildFromFS(const char *pathname)
   }else{
     CONSOLE.Warning(1, "error, \"%s\" is not a directory or regular file.",
       pathname);
+    errno = EINVAL;
     return -1;
   }
   return 0;
 }
 
-int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len, const char *saveas)
+int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len, const char *saveas, bool exam_only)
 {
   char path[MAXPATHLEN];
   const char *s, *p;
@@ -463,6 +465,13 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len, const ch
 
   memcpy(path, s, q);
   path[q] = '\0';
+
+  if( !exam_only &&
+      (PATH_SP == path[0] || '/' == path[0] || 0==strncmp("..", path, 2)) ){
+    CONSOLE.Warning(1, "error, unsafe path \"%s\" in torrent data", path);
+    errno = EINVAL;
+    return -1;
+  }
 
   r = decode_query(metabuf, metabuf_len, "info|files", (const char**)0, &q,
                    (int64_t*)0, QUERY_POS);
@@ -529,7 +538,20 @@ int btFiles::BuildFromMI(const char *metabuf, const size_t metabuf_len, const ch
       r = decode_query(p, dl, "path", (const char **)0, &n, (int64_t*)0,
                        QUERY_POS);
       if( !r ) return -1;
-      if(!decode_list2path(p + r, n, path)) return -1;
+      if(!decode_list2path(p + r, n, path, sizeof(path))){
+        CONSOLE.Warning(1, "error, invalid path in torrent data for file %lu",
+          (unsigned long)m_nfiles);
+        delete pbf;
+        errno = EINVAL;
+        return -1;
+      }
+      if( !exam_only && (PATH_SP == path[0] || '/' == path[0] || 0==strncmp("..", path, 2)) ){
+        CONSOLE.Warning(1, "error, unsafe path \"%s\" in torrent data for file %lu",
+          path, (unsigned long)m_nfiles);
+        delete pbf; 
+        errno = EINVAL;
+        return -1;
+      }
 
       int f_conv;
       char *tmpfn = new char[strlen(path)*2+5];
@@ -632,22 +654,26 @@ int btFiles::CreateFiles()
         if( !_btf_creat_by_path(fn,pbt->bf_length)){
           CONSOLE.Warning(1, "error, create file \"%s\" failed:  %s", fn,
             strerror(errno));
+          errno = EINVAL;
           return -1;
         }
       }else{
         CONSOLE.Warning(1, "error, couldn't create file \"%s\":  %s", fn,
           strerror(errno));
+        errno = EINVAL;
         return -1;
       }
     }else{
       if( !check_exist) check_exist = 1;
       if( !(S_IFREG & sb.st_mode) ){
         CONSOLE.Warning(1, "error, file \"%s\" is not a regular file.", fn);
+        errno = EINVAL;
         return -1;
       }
       if(sb.st_size != pbt->bf_length){
         CONSOLE.Warning(1,"error, file \"%s\" size doesn't match; must be %llu",
                 fn, (unsigned long long)(pbt->bf_length));
+        errno = EINVAL;
         return -1;
       }
     }
@@ -656,6 +682,7 @@ int btFiles::CreateFiles()
   m_file = new BTFILE *[m_nfiles];
   if( !m_file ){
     CONSOLE.Warning(1, "error, failed to allocate memory for files list");
+    errno = ENOMEM;
     return -1;
   }
   for( pbt = m_btfhead; pbt; pbt = pbt->bf_next ){
@@ -694,6 +721,31 @@ void btFiles::PrintOut()
 size_t btFiles::FillMetaInfo(FILE* fp)
 {
   BTFILE *p;
+  const char *refname, *s;
+  char path[MAXPATHLEN];
+
+  refname = m_directory ? m_directory : m_btfhead->bf_filename;
+  while( (s = strchr(refname, PATH_SP)) && *(s + 1) ){
+    refname = s + 1;
+  }
+  if( m_directory && '.' == *refname ){
+    char dir[MAXPATHLEN];
+    if( getcwd(dir, sizeof(dir)) && 0==chdir(m_directory) ){
+      if( getcwd(path, sizeof(path)) ){
+        refname = path;
+        while( (s = strchr(refname, PATH_SP)) && *(s + 1) ){
+          refname = s + 1;
+        }
+      }
+      chdir(dir);
+    }
+  }
+  if( '/' == *refname || '\0' == *refname || '.' == *refname ){
+    CONSOLE.Warning(1, "error, inappropriate file or directory name \"%s\"",
+      m_directory ? m_directory : m_btfhead->bf_filename);
+    errno = EINVAL;
+    return 0;
+  }
   if( m_directory ){
     // multi files
     if( bencode_str("files", fp) != 1 ) return 0;
@@ -715,16 +767,16 @@ size_t btFiles::FillMetaInfo(FILE* fp)
     if(bencode_end_dict_list(fp) != 1 ) return 0;
     
     if(bencode_str("name", fp) != 1) return 0;
-    return bencode_str(m_directory, fp);
+    return bencode_str(refname, fp);
     
   }else{
     if( bencode_str("length", fp) != 1 ) return 0;
     if( bencode_int(m_btfhead->bf_length, fp) != 1) return 0;
     
     if( bencode_str("name", fp) != 1 ) return 0;
-    return bencode_str(m_btfhead->bf_filename, fp);
+    return bencode_str(refname, fp);
   }
-  return 1;
+  return 0;
 }
 
 

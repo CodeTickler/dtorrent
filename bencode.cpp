@@ -233,22 +233,28 @@ size_t bencode_path2list(const char *pathname, FILE *fp)
   return bencode_end_dict_list(fp);
 }
 
-size_t decode_list2path(const char *b, size_t n, char *pathname)
+size_t decode_list2path(const char *b, size_t n, char *pathname, size_t maxlen)
 {
   const char *pb = b;
-  const char *s = (char *) 0;
-  size_t r,q;
+  const char *s = (char *)0;
+  const char *endmax = pathname + maxlen - 1;
+  size_t r, q;
 
   if( 'l' != *pb ) return 0;
   pb++;
   n--;
   if( !n ) return 0;
-  for(; n;){
-    if(!(r = buf_str(pb, n, &s, &q)) ) return 0;
+  while( n && pathname < endmax ){
+   if( !(r = buf_str(pb, n, &s, &q)) ) return 0;
+   if( q >= maxlen ) return 0;
     memcpy(pathname, s, q);
     pathname += q;
-    pb += r; n -= r; 
-    if( 'e' != *pb ){*pathname = PATH_SP, pathname++;} else break;
+    maxlen -= q;
+    pb += r;
+    n -= r;
+    if( 'e' == *pb ) break;
+    if( pathname >= endmax ) return 0;
+    *pathname++ = PATH_SP;
   }
   *pathname = '\0';
   return (pb - b + 1);
