@@ -357,7 +357,7 @@ int btContent::InitialFromMI(const char *metainfo_fname,const char *saveas)
 
   cfg_req_queue_length = (m_piece_length / cfg_req_slice_size) * 2 - 1;
 
-  if( m_btfiles.BuildFromMI(b, flen, saveas) < 0 ) ERR_RETURN();
+  if( m_btfiles.BuildFromMI(b, flen, saveas, 0) < 0 ) ERR_RETURN();
 
   delete []b;
   b = (char *)0;
