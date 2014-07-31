@@ -66,8 +66,8 @@ int btBasic::IpEquiv(struct sockaddr_in addr)
 //  CONSOLE.Debug_n("IpEquiv: %s <=> ", inet_ntoa(m_sin.sin_addr));
 //  CONSOLE.Debug_n("%s", inet_ntoa(addr.sin_addr));
 //  CONSOLE.Debug_n("");
-  return (memcmp(&m_sin.sin_addr,&addr.sin_addr,sizeof(struct in_addr)) == 0) ? 
-    1 : 0;
+  return (memcmp(&m_sin.sin_addr,&addr.sin_addr,sizeof(struct in_addr)) == 0) &&
+    (m_sin.sin_port == addr.sin_port);
 }
 
 int btPeer::Need_Local_Data() const
