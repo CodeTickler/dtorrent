@@ -550,6 +550,10 @@ int btTracker::IntervalCheck(fd_set *rfdp, fd_set *wfdp)
   }else if( T_CONNECTING == m_status ){
     FD_SET(m_sock, rfdp);
     FD_SET(m_sock, wfdp);
+  }else if( T_READY == m_status && m_f_stoped &&
+    (now - m_report_time > m_interval)) {
+    // we're stopping and tracker doesn't reply
+    Reset(15);
   }else if( INVALID_SOCKET != m_sock ){
     FD_SET(m_sock, rfdp);
     if( m_request_buffer.Count() ) FD_SET(m_sock, wfdp);
