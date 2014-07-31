@@ -182,7 +182,7 @@ int param_check(int argc, char **argv)
       break;
 
     case 'e':			// Exit while complete
-      cfg_seed_hours = (time_t)strtoul(optarg, NULL, 10);
+      cfg_seed_seconds = (time_t)strtoul(optarg, NULL, 10);
       break;
 
     case 'E':			// target seed ratio
@@ -390,7 +390,7 @@ void usage()
 
   fprintf(stderr,"\nDownload Options:\n");
   fprintf(stderr, "%-15s %s\n", "-e int",
-    "Exit while seed <int> hours later (default 72 hours)");
+    "Exit while seed <int> seconds later (default 72 hours)");
   fprintf(stderr, "%-15s %s\n", "-E num",
     "Exit after seeding to <num> ratio (UL:DL)");
   fprintf(stderr, "%-15s %s\n", "-i ip",

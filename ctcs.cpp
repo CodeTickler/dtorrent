@@ -318,14 +318,14 @@ int Ctcs::Send_Config()
         "Verbose output [-v]", arg_verbose ? "Enabled" : "Disabled"))) < 0 )
       return r;
 
-    double num = BTCONTENT.GetSeedTime() ?
-        (cfg_seed_hours - (now - BTCONTENT.GetSeedTime())/3600.0) :
-        cfg_seed_hours;
+    double num = (BTCONTENT.GetSeedTime() ?
+        (cfg_seed_seconds - (now - BTCONTENT.GetSeedTime())) :
+        cfg_seed_seconds);
     unsigned long tmp = (unsigned long)(num * 100);
     int pre = (tmp % 10) ? 2 : (tmp % 100) ? 1 : 0;
     snprintf(value, MAXPATHLEN, "%.*f", pre, num);
-    snprintf(desc, MAXPATHLEN, "~hours remaining (-e %lu)", 
-      (unsigned long)cfg_seed_hours);
+    snprintf(desc, MAXPATHLEN, "~seconds remaining (-e %lu)", 
+      (unsigned long)cfg_seed_seconds);
     if( (r = SendMessage(ConfigMsg("seed_time", "F", "0", value,
                                    "Seed time [-e]", desc))) < 0 )
       return r;
@@ -397,13 +397,13 @@ int Ctcs::Send_Config()
   }
   else if( m_protocol == 2 )
     snprintf(message, CTCS_BUFSIZE, "CTCONFIG %d %d %f %d %d %d %d %d",
-      (int)arg_verbose, (int)cfg_seed_hours, cfg_seed_ratio,
+      (int)arg_verbose, (int)cfg_seed_seconds, cfg_seed_ratio,
       (int)cfg_max_peers, (int)cfg_min_peers,
       BTCONTENT.GetFilter() ? atoi(BTCONTENT.GetFilterName()) : 0,
       (int)cfg_cache_size, WORLD.IsPaused());
   else  // m_protocol == 1
     snprintf(message, CTCS_BUFSIZE, "CTCONFIG %d %d %f %d %d %d %d %d %d",
-      (int)arg_verbose, (int)cfg_seed_hours, cfg_seed_ratio,
+      (int)arg_verbose, (int)cfg_seed_seconds, cfg_seed_ratio,
       (int)cfg_max_peers, (int)cfg_min_peers,
       BTCONTENT.GetFilter() ? atoi(BTCONTENT.GetFilterName()) : 0,
       0, WORLD.IsPaused(), 0);
@@ -458,17 +458,17 @@ int Ctcs::Set_Config(const char *origmsg)
       if( value < 0 ) goto err;
       time_t arg = (time_t)value + ((value - (int)value) ? 1 : 0);
       arg += BTCONTENT.GetSeedTime() ?
-             ((now - BTCONTENT.GetSeedTime()) / 3600) : 0;
+             ((now - BTCONTENT.GetSeedTime())) : 0;
       if( arg > 0 || 0==BTCONTENT.GetSeedTime() ||
           cfg_seed_ratio > (double) Self.TotalUL() /
             (Self.TotalDL() ?
              Self.TotalDL() : BTCONTENT.GetTotalFilesLength()) )
-        cfg_seed_hours = arg;
+        cfg_seed_seconds = arg;
     }else if( 0==strcmp(name, "seed_ratio") ){
       double arg = atof(valstr);
       if( arg < 0 ) goto err;
       if( 0==BTCONTENT.GetSeedTime() ||
-          cfg_seed_hours > (now - BTCONTENT.GetSeedTime()) / 3600 ||
+          cfg_seed_seconds > (now - BTCONTENT.GetSeedTime()) ||
           arg > (double) Self.TotalUL() /
             (Self.TotalDL() ?
              Self.TotalDL() : BTCONTENT.GetTotalFilesLength()) )
@@ -542,7 +542,7 @@ int Ctcs::Set_Config(const char *origmsg)
       if( arg_verbose && !arg ) CONSOLE.Debug("Verbose output off");
       arg_verbose = arg;
     }
-    if(msgbuf[11] != '.') cfg_seed_hours = atoi(msgbuf+11);
+    if(msgbuf[11] != '.') cfg_seed_seconds = atoi(msgbuf+11);
     if( !(msgbuf = strchr(msgbuf+11, ' ')) ) goto err;
     if(*++msgbuf != '.') cfg_seed_ratio = atof(msgbuf);
     if( !(msgbuf = strchr(msgbuf, ' ')) ) goto err;

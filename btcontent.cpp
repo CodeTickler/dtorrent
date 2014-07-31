@@ -1263,16 +1263,16 @@ int btContent::SeedTimeout()
       global_piece_buffer = new char[DEFAULT_SLICE_SIZE];
       global_buffer_size = global_piece_buffer ? DEFAULT_SLICE_SIZE : 0;
       if(arg_ctcs) CTCS.Send_Status();
-      CONSOLE.Print_n("Seed for others %lu hours",
-        (unsigned long)cfg_seed_hours);
+      CONSOLE.Print_n("Seed for others %lu seconds",
+        (unsigned long)cfg_seed_seconds);
       if( cfg_seed_ratio )
         CONSOLE.Print_n(" or to ratio of %.2f", cfg_seed_ratio);
       CONSOLE.Print("");
     }else if( now < m_seed_timestamp ) m_seed_timestamp = now;
     dl = (Self.TotalDL() > 0) ? Self.TotalDL() : GetTotalFilesLength();
-    if( (cfg_seed_ratio == 0 && cfg_seed_hours == 0) ||
-        (cfg_seed_hours > 0 &&
-          (now - m_seed_timestamp) >= (cfg_seed_hours * 60 * 60)) ||
+    if( (cfg_seed_ratio == 0 && cfg_seed_seconds == 0) ||
+        (cfg_seed_seconds > 0 &&
+          (now - m_seed_timestamp) >= (cfg_seed_seconds)) ||
         (cfg_seed_ratio > 0 &&
           cfg_seed_ratio <= (double) Self.TotalUL() / dl) ){
       if( m_flush_failed ){
