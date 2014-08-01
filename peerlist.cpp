@@ -541,6 +541,10 @@ size_t PeerList::What_Can_Duplicate(BitField &bf, const btPeer *proposer,
   slots = endgame ? BTCONTENT.GetNPieces() - BTCONTENT.pBF->Count() :
                     m_downloads * 2;
   if( slots < m_dup_req_pieces + 2 ) slots = m_dup_req_pieces + 2;
+
+  if( 0 > (ssize_t) slots) // FIXME: when does it happen?
+    return BTCONTENT.GetNPieces();
+
   data = new struct qdata[slots];
 #ifndef WINDOWS
   if( !data ) return BTCONTENT.GetNPieces();
